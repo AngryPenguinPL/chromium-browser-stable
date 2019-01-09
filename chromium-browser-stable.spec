@@ -266,6 +266,7 @@ BuildRequires:	python2-ply
 BuildRequires:	python2-beautifulsoup4
 BuildRequires:	python2-simplejson
 BuildRequires:	python2-html5lib
+BuildRequires:	pkgconfig(libva)
 
 %description
 Chromium is a browser that combines a minimal design with sophisticated
