@@ -28,18 +28,14 @@
 %define    google_default_client_secret RDdr-pHq2gStY4uw0m-zxXeo
 
 %bcond_with	plf
-# Chromium breaks on wayland, hidpi, and colors with gtk3 enabled.
-# But as of 60.0.3112.78 and .90, building with gtk2 is broken
-%bcond_without	gtk3
 # crisb - ozone causes a segfault on startup as of 57.0.2987.133
 %bcond_with	ozone
 %bcond_without	system_icu
 %bcond_without	system_ffmpeg
 # Temporarily broken, cr_z_* symbols used even when we're supposed to use system minizip
-%bcond_with	system_minizip
+%bcond_without	system_minizip
 # chromium 58 fails with system vpx 1.6.1
 %bcond_with	system_vpx
-%bcond_with	system_harfbuzz
 
 # Always support proprietary codecs
 # or html5 does not work
@@ -51,7 +47,7 @@
 Name: 		chromium-browser-%{channel}
 # Working version numbers can be found at
 # http://omahaproxy.appspot.com/
-Version: 	67.0.3396.87
+Version: 	71.0.3578.98
 Release: 	1%{?extrarelsuffix}
 Summary: 	A fast webkit-based web browser
 Group: 		Networking/WWW
@@ -62,13 +58,6 @@ Source1: 	chromium-wrapper
 Source2: 	chromium-browser%{namesuffix}.desktop
 Source3:	master_preferences
 Source100:	%{name}.rpmlintrc
-
-%if %mdvver >= 201500
-# Don't use clang's integrated as while trying to check the version of gas
-#Patch4:		chromium-36.0.1985.143-clang-no-integrated-as.patch
-%endif
-
-#Patch20:	chromium-last-commit-position-r0.patch
 
 ### Chromium Fedora Patches ###
 Patch0:         https://src.fedoraproject.org/rpms/chromium/raw/master/f/chromium-67.0.3396.62-gcc5.patch
@@ -84,16 +73,16 @@ Patch9:         https://src.fedoraproject.org/rpms/chromium/raw/master/f/chromiu
 # https://bugs.chromium.org/p/chromium/issues/detail?id=622493
 Patch12:        https://src.fedoraproject.org/rpms/chromium/raw/master/f/chromium-55.0.2883.75-cups22.patch
 # Use PIE in the Linux sandbox (from openSUSE via Russian Fedora)
-Patch15:        https://src.fedoraproject.org/rpms/chromium/raw/master/f/chromium-55.0.2883.75-sandbox-pie.patch
+Patch15:        https://src.fedoraproject.org/rpms/chromium/raw/master/f/chromium-70.0.3538.67-sandbox-pie.patch
 # Enable ARM CPU detection for webrtc (from archlinux via Russian Fedora)
-Patch16:        chromium-52.0.2743.82-arm-webrtc.patch
+#Patch16:        chromium-52.0.2743.82-arm-webrtc.patch
 # Use /etc/chromium for master_prefs
 Patch18:        https://src.fedoraproject.org/rpms/chromium/raw/master/f/chromium-52.0.2743.82-master-prefs-path.patch
 # Use gn system files
 Patch20:        https://src.fedoraproject.org/rpms/chromium/raw/master/f/chromium-67.0.3396.62-gn-system.patch
 # Fix last commit position issue
 # https://groups.google.com/a/chromium.org/forum/#!topic/gn-dev/7nlJv486bD4
-Patch21:        https://src.fedoraproject.org/rpms/chromium/raw/master/f/chromium-53.0.2785.92-last-commit-position.patch
+# Patch21:        https://src.fedoraproject.org/rpms/chromium/raw/master/f/chromium-60.0.3112.78-last-commit-position.patch
 # Fix issue where timespec is not defined when sys/stat.h is included.
 Patch22:        https://src.fedoraproject.org/rpms/chromium/raw/master/f/chromium-53.0.2785.92-boringssl-time-fix.patch
 # I wouldn't have to do this if there was a standard way to append extra compiler flags
@@ -102,10 +91,7 @@ Patch24:        https://src.fedoraproject.org/rpms/chromium/raw/master/f/chromiu
 Patch25:        https://src.fedoraproject.org/rpms/chromium/raw/master/f/chromium-54.0.2840.59-jpeg-include-dir.patch
 # On i686, pass --no-keep-memory --reduce-memory-overheads to ld.
 Patch26:        https://src.fedoraproject.org/rpms/chromium/raw/master/f/chromium-59.0.3071.86-i686-ld-memory-tricks.patch
-# obj/content/renderer/renderer/child_frame_compositing_helper.o: In function `content::ChildFrameCompositingHelper::OnSetSurface(cc::SurfaceId const&, gfx::Size const&, float, cc::SurfaceSequence const&)':
-# /builddir/build/BUILD/chromium-54.0.2840.90/out/Release/../../content/renderer/child_frame_compositing_helper.cc:214: undefined reference to `cc_blink::WebLayerImpl::setOpaque(bool)'
-Patch27:        https://src.fedoraproject.org/rpms/chromium/raw/master/f/chromium-63.0.3289.84-setopaque.patch
-Patch32:	chromium-66.0.3359.117-nounrar.patch
+Patch32:	https://src.fedoraproject.org/rpms/chromium/raw/master/f/chromium-69.0.3497.81-norar.patch
 Patch33:	chromium-50-system-ffmpeg-3.patch
 Patch36:	https://src.fedoraproject.org/rpms/chromium/raw/master/f/chromium-58.0.3029.96-revert-b794998819088f76b4cf44c8db6940240c563cf4.patch
 # Correctly compile the stdatomic.h in ffmpeg with gcc 4.8
@@ -136,8 +122,6 @@ Patch62:	https://src.fedoraproject.org/rpms/chromium/raw/master/f/chromium-66.0.
 Patch65:	https://src.fedoraproject.org/rpms/chromium/raw/master/f/chromium-65.0.3325.146-gcc-round-fix.patch
 # Include proper headers to invoke memcpy()
 Patch67:	https://src.fedoraproject.org/rpms/chromium/raw/master/f/chromium-65.0.3325.146-memcpy-fix.patch
-# ../../mojo/public/cpp/bindings/associated_interface_ptr_info.h:48:43: error: cannot convert 'const mojo::ScopedInterfaceEndpointHandle' to 'bool' in return
-Patch85:	https://src.fedoraproject.org/rpms/chromium/raw/master/f/chromium-67.0.3396.62-boolfix.patch
 # From Debian
 Patch86:	https://src.fedoraproject.org/rpms/chromium/raw/master/f/chromium-67.0.3396.62-skia-aarch64-buildfix.patch
 # Use lstdc++ on EPEL7 only
@@ -159,28 +143,35 @@ Patch94:	https://src.fedoraproject.org/rpms/chromium/raw/master/f/chromium-66.0.
 # GCC8 has changed the alignof operator to return the minimal alignment required by the target ABI
 # instead of the preferred alignment. This means int64_t is now 4 on i686 (instead of 8).
 # Use __alignof__ to get the value we expect (and chromium checks for).
-Patch98:	https://src.fedoraproject.org/rpms/chromium/raw/master/f/chromium-66.0.3359.170-gcc8-alignof.patch
-# https://chromium.googlesource.com/crashpad/crashpad/+/26ef5c910fc7e2edb441f1d2b39944195342dee9
-Patch99:	https://src.fedoraproject.org/rpms/chromium/raw/master/f/chromium-67.0.3396.62-crashpad-aarch64-buildfix.patch
-# RHEL 7 has a bug in its python2.7 which does not propely handle exec with a tuple
-# https://bugs.python.org/issue21591
-Patch100:	https://src.fedoraproject.org/rpms/chromium/raw/master/f/chromium-67.0.3396.62-epel7-use-old-python-exec-syntax.patch
+Patch98:	https://src.fedoraproject.org/rpms/chromium/raw/master/f/chromium-69.0.3497.81-gcc8-alignof.patch
+# Don't build in a Debian chroot
+Patch99:	https://src.fedoraproject.org/rpms/chromium/raw/master/f/chromium-69.0.3497.81-build-sanely-please.patch
+# Fix build against harfbuzz2
+Patch118:	chromium-70.0.3538.77-harfbuzz2-fix.patch
 
 ### Chromium Tests Patches ###
 # suse, system libs
-Patch103:	arm_use_right_compiler.patch
+Patch200:	arm_use_right_compiler.patch
+# Gentoo, fix widevine
+Patch201:	https://gitweb.gentoo.org/repo/gentoo.git/plain/www-client/chromium/files/chromium-widevine.patch
+# Arch Linux, fix for compile error with system ICU
+Patch202:	https://raw.githubusercontent.com/archlinuxarm/PKGBUILDs/master/extra/chromium/chromium-system-icu.patch
 
 # mga
-Patch111:	chromium-55-extra-media.patch
-Patch112:	chromium-40-wmvflvmpg.patch
-Patch114:	chromium-55-flac.patch
+Patch300:	chromium-69-extra-media.patch
+Patch301:	chromium-69-wmvflvmpg.patch
+Patch302:	chromium-55-flac.patch
 
 # omv
-Patch120:	chromium-59-clang-workaround.patch
-#Patch122:	chromium-63-gn-bootstrap.patch
-#Patch124:	chromium-61.0.3163.100-atk-compile.patch
-Patch125:	chromium-64-system-curl.patch
-Patch127:	chromium-clang-5.patch
+Patch500:	chromium-59-clang-workaround.patch
+Patch501:	chromium-64-system-curl.patch
+Patch502:	chromium-69-no-static-libstdc++.patch
+
+# fixed upstream
+Patch505:	chromium-70.0.3538.102-sysroot.patch
+
+# stop so many build warnings
+Patch506:	chromium-71.0.3578.94-quieten.patch
 
 Provides: 	%{crname}
 Obsoletes: 	chromium-browser-unstable < 26.0.1410.51
@@ -191,23 +182,19 @@ BuildRequires: 	bison
 BuildRequires: 	re2c
 BuildRequires: 	flex
 #BuildRequires: 	v8-devel
+BuildRequires:	pkgconfig(alsa)
+BuildRequires:	pkgconfig(krb5)
+BuildRequires:	pkgconfig(re2)
+BuildRequires:	pkgconfig(com_err)
+BuildRequires:	python2dist(json5)
 BuildRequires: 	alsa-oss-devel
-%if %mdvver >= 201500
 BuildRequires:	atomic-devel
 BuildRequires:	harfbuzz-devel
-%else
-BuildRequires:	%{_lib}atomic1
-%endif
 BuildRequires:  pkgconfig(icu-i18n)
 BuildRequires: 	snappy-devel
 BuildRequires: 	jsoncpp-devel
 BuildRequires: 	pkgconfig(expat)
 BuildRequires: 	pkgconfig(glib-2.0)
-# FIXME we currently can't use system re2 because
-# Chromium uses libc++ while the system STL is libstdc++ for now
-# This leads to unresolved symbols because of disagreements over
-# the namespace of std::basic_string (__1 vs. not __1)
-#BuildRequires:	pkgconfig(re2)
 BuildRequires: 	pkgconfig(wayland-egl)
 BuildRequires: 	pkgconfig(nss)
 BuildRequires: 	bzip2-devel
@@ -259,11 +246,7 @@ BuildRequires: 	pkgconfig(libusb-1.0)
 BuildRequires:  speech-dispatcher-devel
 BuildRequires:  pkgconfig(libpci)
 BuildRequires:	pkgconfig(libexif)
-%if %mdvver >= 201500
 BuildRequires:	python2
-%else
-BuildRequires:	python
-%endif
 BuildRequires:	ninja
 BuildRequires:	nodejs
 BuildRequires:	python2-markupsafe
@@ -312,8 +295,7 @@ members of the Chromium and WebDriver teams.
 
 
 %prep
-%setup -q -n chromium-%{version}
-%apply_patches
+%autosetup -p1 -n chromium-%{version}
 
 rm -rf third_party/binutils/
 
@@ -351,9 +333,14 @@ python2 build/linux/unbundle/remove_bundled_libraries.py \
 	'base/third_party/xdg_user_dirs' \
 	'chrome/third_party/mozilla_security_manager' \
 	'courgette/third_party' \
+	'net/third_party/http2' \
 	'net/third_party/mozilla_security_manager' \
 	'net/third_party/nss' \
+	'net/third_party/quic' \
+	'net/third_party/spdy' \
+        'net/third_party/uri_template' \
 	'third_party/WebKit' \
+	'third_party/abseil-cpp' \
 	'third_party/adobe' \
 	'third_party/analytics' \
 	'third_party/angle' \
@@ -362,9 +349,12 @@ python2 build/linux/unbundle/remove_bundled_libraries.py \
 	'third_party/angle/src/third_party/compiler' \
 	'third_party/angle/src/third_party/libXNVCtrl' \
 	'third_party/angle/src/third_party/trace_event' \
+	'third_party/angle/third_party/vulkan-loader' \
 	'third_party/angle/third_party/glslang' \
 	'third_party/angle/third_party/spirv-headers' \
 	'third_party/angle/third_party/spirv-tools' \
+	'third_party/angle/third_party/vulkan-headers' \
+	'third_party/angle/third_party/vulkan-tools' \
 	'third_party/angle/third_party/vulkan-validation-layers' \
 	'third_party/apple_apsl' \
 	'third_party/blanketjs' \
@@ -413,12 +403,14 @@ python2 build/linux/unbundle/remove_bundled_libraries.py \
 	'third_party/inspector_protocol' \
 	'third_party/jinja2' \
 	'third_party/jstemplate' \
+        'third_party/jsoncpp' \
 	'third_party/khronos' \
 	'third_party/leveldatabase' \
 	'third_party/libXNVCtrl' \
 	'third_party/libaddressinput' \
 	'third_party/libaom' \
-	'third_party/libaom/source/libaom/third_party/x86inc' \
+        'third_party/libaom/source/libaom/third_party/vector' \
+        'third_party/libaom/source/libaom/third_party/x86inc' \
 	'third_party/libdrm' \
 	'third_party/libjingle' \
 	'third_party/libjpeg_turbo' \
@@ -426,6 +418,7 @@ python2 build/linux/unbundle/remove_bundled_libraries.py \
 	'third_party/libpng' \
 	'third_party/libsecret' \
         'third_party/libsrtp' \
+	'third_party/libsync' \
 	'third_party/libudev' \
 	'third_party/libusb' \
 	'third_party/libvpx' \
@@ -458,6 +451,7 @@ python2 build/linux/unbundle/remove_bundled_libraries.py \
         'third_party/pdfium/third_party/libpng16' \
         'third_party/pdfium/third_party/libtiff' \
 	'third_party/pdfium/third_party/skia_shared' \
+	'third_party/perfetto' \
         'third_party/ply' \
 	'third_party/polymer' \
 	'third_party/protobuf' \
@@ -465,17 +459,20 @@ python2 build/linux/unbundle/remove_bundled_libraries.py \
 	'third_party/qcms' \
 	'third_party/qunit' \
 	'third_party/re2' \
+	'third_party/rnnoise' \
 	'third_party/s2cellid' \
 	'third_party/sfntly' \
 	'third_party/sinonjs' \
 	'third_party/skia' \
 	'third_party/skia/third_party/gif' \
+	'third_party/skia/third_party/skcms' \
 	'third_party/skia/third_party/vulkan' \
 	'third_party/smhasher' \
 	'third_party/snappy' \
 	'third_party/speech-dispatcher' \
 	'third_party/spirv-headers' \
 	'third_party/spirv-tools-angle' \
+        'third_party/SPIRV-Tools' \
 	'third_party/sqlite' \
 	'third_party/swiftshader' \
 	'third_party/swiftshader/third_party/subzero' \
@@ -490,15 +487,24 @@ python2 build/linux/unbundle/remove_bundled_libraries.py \
 	'third_party/web-animations-js' \
 	'third_party/webdriver' \
 	'third_party/webrtc' \
+        'third_party/webrtc/common_audio/third_party/fft4g' \
+        'third_party/webrtc/common_audio/third_party/spl_sqrt_floor' \
+        'third_party/webrtc/modules/third_party/fft' \
+        'third_party/webrtc/modules/third_party/g711' \
+        'third_party/webrtc/modules/third_party/g722' \
+        'third_party/webrtc/rtc_base/third_party/base64' \
+        'third_party/webrtc/rtc_base/third_party/sigslot' \
 	'third_party/widevine' \
         'third_party/woff2' \
         'third_party/xdg-utils' \
         'third_party/yasm' \
         'third_party/zlib' \
 	'third_party/zlib/google' \
+	'tools/gn/base/third_party/icu' \
 	'url/third_party/mozilla' \
 	'v8/src/third_party/utf8-decoder' \
 	'v8/src/third_party/valgrind' \
+	'v8/third_party/v8' \
 	'v8/third_party/inspector_protocol' \
 	--do-remove
 
@@ -530,60 +536,74 @@ export CXX=clang++
 # sure it sees python2 when it calls python
 export PATH=`pwd`:$PATH
 
-myconf_gn=" use_sysroot=false is_debug=false use_gold=true"
-myconf_gn+=" is_clang=true clang_base_path=\"%{_prefix}\" clang_use_chrome_plugins=false "
-myconf_gn+=" treat_warnings_as_errors=false"
-myconf_gn+=" use_system_libjpeg=true "
-myconf_gn+=" use_system_lcms2=true "
-myconf_gn+=" use_system_libpng=true "
-%if %mdvver >= 201500
-myconf_gn+=" use_system_harfbuzz=true "
-%endif
-myconf_gn+=" use_gnome_keyring=false "
-myconf_gn+=" fatal_linker_warnings=false "
-myconf_gn+=" system_libdir=\"%{_lib}\""
-myconf_gn+=" use_allocator=\"none\""
-myconf_gn+=" use_aura=true "
-#myconf_gn+=" use_gio=true"
-myconf_gn+=" icu_use_data_file=true"
-%if %{with gtk3}
-myconf_gn+=" use_gtk3=true "
-%else
-myconf_gn+=" use_gtk3=false "
-%endif
+CHROMIUM_CORE_GN_DEFINES=" use_sysroot=false is_debug=false fieldtrial_testing_like_official_build=true use_lld=false use_gold=true"
+CHROMIUM_CORE_GN_DEFINES+=" is_clang=true clang_base_path=\"%{_prefix}\" clang_use_chrome_plugins=false "
+CHROMIUM_CORE_GN_DEFINES+=" treat_warnings_as_errors=false use_custom_libcxx=false "
+CHROMIUM_CORE_GN_DEFINES+=" use_system_libjpeg=true "
+CHROMIUM_CORE_GN_DEFINES+=" use_system_lcms2=true "
+CHROMIUM_CORE_GN_DEFINES+=" use_system_libpng=true "
+CHROMIUM_CORE_GN_DEFINES+=" use_system_harfbuzz=true "
+CHROMIUM_CORE_GN_DEFINES+=" use_gnome_keyring=false "
+CHROMIUM_CORE_GN_DEFINES+=" fatal_linker_warnings=false "
+CHROMIUM_CORE_GN_DEFINES+=" system_libdir=\"%{_lib}\""
+CHROMIUM_CORE_GN_DEFINES+=" use_allocator=\"none\""
+CHROMIUM_CORE_GN_DEFINES+=" use_aura=true "
+#CHROMIUM_CORE_GN_DEFINES+=" use_gio=true"
+CHROMIUM_CORE_GN_DEFINES+=" icu_use_data_file=true"
 %if %{with ozone}
-myconf_gn+=" use_ozone=true "
+CHROMIUM_CORE_GN_DEFINES+=" use_ozone=true "
 %endif
-myconf_gn+=" enable_nacl=false "
-myconf_gn+=" proprietary_codecs=true "
-myconf_gn+=" ffmpeg_branding=\"ChromeOS\" "
-myconf_gn+=" enable_ac3_eac3_audio_demuxing=true "
-myconf_gn+=" enable_hevc_demuxing=true "
-myconf_gn+=" enable_mse_mpeg2ts_stream_parser=true "
-%ifarch i586
-myconf_gn+=" target_cpu=\"x86\""
+CHROMIUM_CORE_GN_DEFINES+=" enable_nacl=false "
+CHROMIUM_CORE_GN_DEFINES+=" proprietary_codecs=true "
+CHROMIUM_CORE_GN_DEFINES+=" ffmpeg_branding=\"ChromeOS\" "
+CHROMIUM_CORE_GN_DEFINES+=" enable_ac3_eac3_audio_demuxing=true "
+CHROMIUM_CORE_GN_DEFINES+=" enable_hevc_demuxing=true "
+CHROMIUM_CORE_GN_DEFINES+=" enable_mse_mpeg2ts_stream_parser=true "
+%ifarch %{ix86}
+CHROMIUM_CORE_GN_DEFINES+=" target_cpu=\"x86\""
 %endif
-%ifarch x86_64
-myconf_gn+=" target_cpu=\"x64\""
+%ifarch %{x86_64}
+CHROMIUM_CORE_GN_DEFINES+=" target_cpu=\"x64\""
 %endif
-%ifarch %arm
-myconf_gn+=" target_cpu=\"arm\""
-myconf_gn+=" remove_webcore_debug_symbols=true"
-myconf_gn+=" rtc_build_with_neon=true"
+%ifarch %{arm}
+CHROMIUM_CORE_GN_DEFINES+=" target_cpu=\"arm\""
+CHROMIUM_CORE_GN_DEFINES+=" remove_webcore_debug_symbols=true"
+CHROMIUM_CORE_GN_DEFINES+=" rtc_build_with_neon=true"
 %endif
-%ifarch aarch64
-myconf_gn+=" target_cpu=\"arm64\""
+%ifarch %{aarch64}
+CHROMIUM_CORE_GN_DEFINES+=" target_cpu=\"arm64\""
 %endif
-myconf_gn+=" google_api_key=\"%{google_api_key}\""
-myconf_gn+=" google_default_client_id=\"%{google_default_client_id}\""
-myconf_gn+=" google_default_client_secret=\"%{google_default_client_secret}\""
+CHROMIUM_CORE_GN_DEFINES+=" google_api_key=\"%{google_api_key}\""
+CHROMIUM_CORE_GN_DEFINES+=" google_default_client_id=\"%{google_default_client_id}\""
+CHROMIUM_CORE_GN_DEFINES+=" google_default_client_secret=\"%{google_default_client_secret}\""
+CHROMIUM_CORE_GN_DEFINES+=' use_jumbo_build=true jumbo_file_merge_limit=12'
 
-# Set system libraries to be used
+CHROMIUM_BROWSER_GN_DEFINES="use_pulseaudio=true icu_use_data_file=true"
+CHROMIUM_BROWSER_GN_DEFINES+=" enable_nacl=false"
+CHROMIUM_BROWSER_GN_DEFINES+=" is_component_ffmpeg=true is_component_build=true"
+CHROMIUM_BROWSER_GN_DEFINES+=" enable_hangout_services_extension=true"
+CHROMIUM_BROWSER_GN_DEFINES+=" use_aura=true"
+CHROMIUM_BROWSER_GN_DEFINES+=" enable_widevine=true"
+CHROMIUM_BROWSER_GN_DEFINES+=" enable_webrtc=true"
+
+CHROMIUM_HEADLESS_GN_DEFINES=' use_ozone=true ozone_auto_platforms=false ozone_platform="headless" ozone_platform_headless=true'
+CHROMIUM_HEADLESS_GN_DEFINES+=' headless_use_embedded_resources=true icu_use_data_file=false v8_use_external_startup_data=false'
+CHROMIUM_HEADLESS_GN_DEFINES+=' enable_nacl=false enable_print_preview=false enable_remoting=false use_alsa=false'
+CHROMIUM_HEADLESS_GN_DEFINES+=' use_cups=false use_dbus=false use_gio=false use_kerberos=false use_libpci=false'
+CHROMIUM_HEADLESS_GN_DEFINES+=' use_pulseaudio=false use_udev=false'
+
 gn_system_libraries="
     flac
+    fontconfig
+    freetype
+    harfbuzz-ng
+    libdrm
     libjpeg
+    libusb
     libwebp
+    libxml
     libxslt
+    re2
     snappy
     yasm
 "
@@ -594,9 +614,6 @@ gn_system_libraries="
 
 %if %{with system_minizip}
 gn_system_libraries+=" zlib"
-%endif
-%if %{with system_harfbuzz}
-gn_system_libraries+=" harfbuzz-ng"
 %endif
 %if %{with system_icu}
 gn_system_libraries+=" icu"
@@ -609,11 +626,11 @@ gn_system_libraries+=" ffmpeg"
 %endif
 python2 build/linux/unbundle/replace_gn_files.py --system-libraries ${gn_system_libraries}
 
-python2 tools/gn/bootstrap/bootstrap.py -v --gn-gen-args "${myconf_gn}"
+python2 tools/gn/bootstrap/bootstrap.py -v "${CHROMIUM_CORE_GN_DEFINES} ${CHROMIUM_BROWSER_GN_DEFILES}"
 
 python2 third_party/libaddressinput/chromium/tools/update-strings.py
 
-out/Release/gn gen --args="${myconf_gn}" out/Release
+out/Release/gn gen --args="${CHROMIUM_CORE_GN_DEFINES}" out/Release
 
 # Note: DON'T use system sqlite (3.7.3) -- it breaks history search
 # As of 36.0.1985.143, use_system_icu breaks the build.
