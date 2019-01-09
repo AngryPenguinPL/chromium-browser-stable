@@ -172,6 +172,18 @@ Patch505:	chromium-70.0.3538.102-sysroot.patch
 
 # stop so many build warnings
 Patch506:	chromium-71.0.3578.94-quieten.patch
+### VAAPI ###
+# Enable VAAPI support on Linux
+# NOTE: This patch will never land upstream
+Patch1000:	enable-vaapi.patch
+# Since the newer versions of VA-API are ABI compatible, relax the version checks for VA-API, by using VA_CHECK_VERSION().
+# This will help in updating the libva to the latest releases,while still supporting the old versions, till the new version of
+# libva is merged and picked by the builds. Thus ensuring that hardware accleration is not broken while updating the libva.
+# Taken and rebased from https://chromium-review.googlesource.com/c/chromium/src/+/1352519
+# The patch might land somewhere in the future and will be removed.
+
+# Fix compatibility with VA-API library (libva) version 1
+Patch1001:	chromium-71.0.3578.98-vaapi-libva1-compatibility.patch
 
 Provides: 	%{crname}
 Obsoletes: 	chromium-browser-unstable < 26.0.1410.51
