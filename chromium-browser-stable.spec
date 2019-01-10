@@ -48,7 +48,7 @@ Name: 		chromium-browser-%{channel}
 # Working version numbers can be found at
 # http://omahaproxy.appspot.com/
 Version: 	71.0.3578.98
-Release: 	1%{?extrarelsuffix}
+Release: 	2%{?extrarelsuffix}
 Summary: 	A fast webkit-based web browser
 Group: 		Networking/WWW
 License: 	BSD, LGPL
@@ -598,6 +598,7 @@ CHROMIUM_BROWSER_GN_DEFINES+=" enable_hangout_services_extension=true"
 CHROMIUM_BROWSER_GN_DEFINES+=" use_aura=true"
 CHROMIUM_BROWSER_GN_DEFINES+=" enable_widevine=true"
 CHROMIUM_BROWSER_GN_DEFINES+=" enable_webrtc=true"
+CHROMIUM_BROWSER_GN_DEFINES+=' use_vaapi=true'
 
 CHROMIUM_HEADLESS_GN_DEFINES=' use_ozone=true ozone_auto_platforms=false ozone_platform="headless" ozone_platform_headless=true'
 CHROMIUM_HEADLESS_GN_DEFINES+=' headless_use_embedded_resources=true icu_use_data_file=false v8_use_external_startup_data=false'
