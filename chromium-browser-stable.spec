@@ -27,7 +27,7 @@
 %define    google_default_client_id 1089316189405-m0ropn3qa4p1phesfvi2urs7qps1d79o.apps.googleusercontent.com
 %define    google_default_client_secret RDdr-pHq2gStY4uw0m-zxXeo
 
-%bcond_with	plf
+%bcond_without	plf
 # crisb - ozone causes a segfault on startup as of 57.0.2987.133
 %bcond_with	ozone
 %bcond_without	system_icu
@@ -48,7 +48,7 @@ Name: 		chromium-browser-%{channel}
 # Working version numbers can be found at
 # http://omahaproxy.appspot.com/
 Version: 	71.0.3578.98
-Release: 	2%{?extrarelsuffix}
+Release: 	3%{?extrarelsuffix}
 Summary: 	A fast webkit-based web browser
 Group: 		Networking/WWW
 License: 	BSD, LGPL
@@ -240,6 +240,7 @@ BuildRequires: 	pkgconfig(libxml-2.0)
 BuildRequires: 	pkgconfig(libpulse)
 BuildRequires: 	pkgconfig(xt)
 BuildRequires: 	cap-devel
+
 BuildRequires: 	elfutils-devel
 BuildRequires: 	pkgconfig(gnutls)
 BuildRequires: 	pkgconfig(libevent)
@@ -267,6 +268,8 @@ BuildRequires:	python2-beautifulsoup4
 BuildRequires:	python2-simplejson
 BuildRequires:	python2-html5lib
 BuildRequires:	pkgconfig(libva)
+BuildRequires:	pkgconfig(x264)
+BuildRequires:	pkgconfig(x265)
 
 %description
 Chromium is a browser that combines a minimal design with sophisticated
